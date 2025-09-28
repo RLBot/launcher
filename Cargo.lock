@@ -447,6 +447,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "launcher"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "console",
+ "directories",
+ "embed-resource",
+ "indicatif",
+ "self-replace",
+ "serde",
+ "serde_json",
+ "sha256",
+ "static_vcruntime",
+ "tar",
+ "tracing",
+ "tracing-subscriber",
+ "ureq",
+ "xz",
+ "yansi",
+ "zip",
+]
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -625,30 +649,6 @@ dependencies = [
  "spin",
  "untrusted",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "rlbotguilauncher"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "console",
- "directories",
- "embed-resource",
- "indicatif",
- "self-replace",
- "serde",
- "serde_json",
- "sha256",
- "static_vcruntime",
- "tar",
- "tracing",
- "tracing-subscriber",
- "ureq",
- "xz",
- "yansi",
- "zip",
 ]
 
 [[package]]

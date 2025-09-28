@@ -1,14 +1,16 @@
-mod self_updater;
+mod self_update;
+mod github;
 
 use anyhow::anyhow;
 use clap::Parser;
 use console::Term;
 use directories::BaseDirs;
-use self_updater::check_self_update;
-use std::{fs, io::{stdout, Read, Write}, net::TcpStream, path::{Path, PathBuf}};
+use self_update::check_self_update;
+use std::{env, fs, io::{stdout, Read, Write}, net::TcpStream, path::{Path, PathBuf}};
+use std::process::{Command, Stdio};
 use tracing::{error, info, warn};
 use yansi::Paint;
-
+use crate::github::Release;
 /*
 File structure of RLBot v5:
 ```
@@ -26,6 +28,8 @@ File structure of RLBot v5:
 const RLBOT_BIN_DIR: &str = "RLBot5/bin";
 const RLBOT_GUI_BIN_NAME: &str = "rlbotgui.exe";
 const RLBOT_SERVER_BIN_NAME: &str = "RLBotServer.exe";
+
+// github redirects to new repo name/location if this updates
 const RLBOT_GUI_REPO_NAME: &str = "gui";
 const RLBOT_SERVER_REPO_NAME: &str = "core";
 
@@ -81,9 +85,25 @@ fn realmain() -> anyhow::Result<()> {
     if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_GUI_BIN_NAME, RLBOT_GUI_REPO_NAME) {
         error!("{}", e.to_string());
     }
-    if let Err(e) = update_binary(rlbot_bin_dir, RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME) {
+    if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME) {
         error!("{}", e.to_string());
     }
+
+    // Run RLBot server and gui
+    let server_path = rlbot_bin_dir.clone().join(RLBOT_SERVER_BIN_NAME);
+    let mut server_process =Command::new(server_path)
+        .current_dir(env::temp_dir())
+        .spawn()?;
+
+    let gui_path = rlbot_bin_dir.join(RLBOT_GUI_BIN_NAME);
+    let exit_status =Command::new(gui_path)
+        .current_dir(env::temp_dir())
+        .status()?;  // Blocking
+    if !exit_status.success() {
+        Err(anyhow!("Command failed"))?;
+    }
+
+    server_process.kill()?;
 
     Ok(())
 }
@@ -106,7 +126,7 @@ fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str) -> Res
 
     let req_text = &req.into_body().read_to_string()?;
 
-    let latest_release = serde_json::from_str::<self_updater::Release>(req_text)
+    let latest_release = serde_json::from_str::<Release>(req_text)
         .map_err(|e| anyhow!("Could not parse latest release of RLBot/{}: {}", repo_name, e))?;
 
     let asset = latest_release.assets.iter()
@@ -141,7 +161,7 @@ fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str) -> Res
 }
 
 fn is_online() -> bool {
-    TcpStream::connect("stackoverflow.com:80").is_ok()
+    TcpStream::connect("github.com:80").is_ok()
 }
 
 fn pause() {
