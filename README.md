@@ -14,3 +14,9 @@ Make sure you have the [rust toolchain installed](https://rustup.rs/). Build usi
 ### Cross-compiling on linux
 
 Make sure you have the [rust toolchain](https://rustup.rs/) and [cargo-xwin](https://github.com/rust-cross/cargo-xwin) installed. Build using `cargo xwin build --release`
+
+## Creating the installer
+
+1. Install [NSIS](https://nsis.sourceforge.io/Main_Page).
+2. Right-click on `installer.nsi` and select `Compile NSIS Script` or run `makensis installer.nsi`.
+3. Replace the installer file in the releases.

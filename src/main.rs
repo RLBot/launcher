@@ -7,10 +7,11 @@ use console::Term;
 use directories::BaseDirs;
 use self_update::check_self_update;
 use std::{env, fs, io::{stdout, Read, Write}, net::TcpStream, path::{Path, PathBuf}};
-use std::process::{Command, Stdio};
+use std::process::Command;
 use tracing::{error, info, warn};
 use yansi::Paint;
 use crate::github::Release;
+
 /*
 File structure of RLBot v5:
 ```

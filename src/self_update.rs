@@ -9,23 +9,18 @@ use crate::pause;
 use anyhow::Context;
 use tracing::{info, warn};
 
-const RLBOT_LAUNCHER_REPO_NAME: &str = "gui-launcher";
+const RLBOT_LAUNCHER_REPO_NAME: &str = "launcher-v5";
 
 fn self_update(new_release: &Release) -> anyhow::Result<()> {
-    let zip_asset = new_release
+    let asset = new_release
         .assets
         .iter()
-        .find(|r| {
-            r.name.contains("launcher")
-                && Path::new(&r.name)
-                    .extension()
-                    .map_or(false, |ext| ext.eq_ignore_ascii_case("zip"))
-        })
+        .find(|a| a.name.contains("launcher.exe"))
         .context("Could not find binary of latest release")?;
 
     info!("Downloading latest release of launcher...");
 
-    let response = ureq::get(&zip_asset.browser_download_url).call()?;
+    let response = ureq::get(&asset.browser_download_url).call()?;
 
     let mut bytes = Vec::new();
     response
@@ -34,7 +29,7 @@ fn self_update(new_release: &Release) -> anyhow::Result<()> {
         .read_to_end(&mut bytes)?;
 
     info!("Updating self... - PLEASE DO NOT CLOSE THIS WINDOW");
-    let temp_bin = Path::join(env::temp_dir().as_path(), "TEMPrlbotguilauncher.exe");
+    let temp_bin = Path::join(env::temp_dir().as_path(), "TEMPlauncher.exe");
     fs::write(&temp_bin, bytes)?;
     self_replace::self_replace(&temp_bin)?;
     fs::remove_file(temp_bin)?;
@@ -49,7 +44,7 @@ pub fn check_self_update(force_update: bool) -> anyhow::Result<bool> {
         "https://api.github.com/repos/RLBot/{RLBOT_LAUNCHER_REPO_NAME}/releases/latest"
     );
     let Ok(req) = ureq::get(&latest_release_url)
-        .header("User-Agent", "rlbot-gui-launcher")
+        .header("User-Agent", "rlbot-launcher-v5")
         .call()
     else {
         warn!("Self-update not available: Could not find latest release");
