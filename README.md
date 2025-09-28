@@ -15,8 +15,17 @@ Make sure you have the [rust toolchain installed](https://rustup.rs/). Build usi
 
 Make sure you have the [rust toolchain](https://rustup.rs/) and [cargo-xwin](https://github.com/rust-cross/cargo-xwin) installed. Build using `cargo xwin build --release`
 
-## Creating the installer
+## Updating the launcher
+
+Once the changes have been committed and the version in `Cargo.toml` has been updated, the launcher can be updated by following these steps:
+
+1. Run `cargo build --release` (be careful you don't run it, self it will replace itself with the old version)
+1. Create a new GitHub release. Its name must match the version in `Cargo.toml`.
+
+## Updating the installer
 
 1. Install [NSIS](https://nsis.sourceforge.io/Main_Page).
-2. Right-click on `installer.nsi` and select `Compile NSIS Script` or run `makensis installer.nsi`.
-3. Replace the installer file in the releases.
+1. Right-click on `installer.nsi` and select `Compile NSIS Script` or run `makensis installer.nsi`.
+1. Replace the installer file in the [Installer release](https://github.com/RLBot/launcher-v5/releases/tag/installer).
+
+The installer only needs to be created once (since the launcher is self-updating).

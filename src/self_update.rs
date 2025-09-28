@@ -16,7 +16,7 @@ fn self_update(new_release: &Release) -> anyhow::Result<()> {
         .assets
         .iter()
         .find(|a| a.name.contains("launcher.exe"))
-        .context("Could not find binary of latest release")?;
+        .context("Could not find binary in latest release of launcher")?;
 
     info!("Downloading latest release of launcher...");
 

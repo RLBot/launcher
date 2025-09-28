@@ -82,12 +82,14 @@ fn realmain() -> anyhow::Result<()> {
         fs::create_dir_all(rlbot_bin_dir.clone())?;
     }
 
-    // Update binaries
-    if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_GUI_BIN_NAME, RLBOT_GUI_REPO_NAME) {
-        error!("{}", e.to_string());
-    }
-    if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME) {
-        error!("{}", e.to_string());
+    if is_online {
+        // Update binaries
+        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_GUI_BIN_NAME, RLBOT_GUI_REPO_NAME) {
+            error!("{}", e.to_string());
+        }
+        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME) {
+            error!("{}", e.to_string());
+        }
     }
 
     // Run RLBot server and gui
