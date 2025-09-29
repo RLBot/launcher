@@ -28,4 +28,5 @@ Once the changes have been committed and the version in `Cargo.toml` has been up
 1. Right-click on `installer.nsi` and select `Compile NSIS Script` or run `makensis installer.nsi`.
 1. Replace the installer file in the [Installer release](https://github.com/RLBot/launcher-v5/releases/tag/installer).
 
-The installer only needs to be created once (since the launcher is self-updating).
+The installer technically only needs to be created once (since the launcher is self-updating),
+but creating an intaller that installs the newest launcher immediately avoids new users having to restart the launcher on first run.

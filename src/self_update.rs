@@ -8,6 +8,7 @@ use crate::github::Release;
 use crate::pause;
 use anyhow::Context;
 use tracing::{info, warn};
+use yansi::Paint;
 
 const RLBOT_LAUNCHER_REPO_NAME: &str = "launcher-v5";
 
@@ -28,12 +29,12 @@ fn self_update(new_release: &Release) -> anyhow::Result<()> {
         .into_reader()
         .read_to_end(&mut bytes)?;
 
-    info!("Updating self... - PLEASE DO NOT CLOSE THIS WINDOW");
+    info!("Updating self... DO NOT CLOSE THIS WINDOW");
     let temp_bin = Path::join(env::temp_dir().as_path(), "TEMPlauncher.exe");
     fs::write(&temp_bin, bytes)?;
     self_replace::self_replace(&temp_bin)?;
     fs::remove_file(temp_bin)?;
-    info!("Done! Please restart this program to continue.");
+    info!("Done! {}", "Please restart this program to continue.".yellow());
     pause();
 
     Ok(())

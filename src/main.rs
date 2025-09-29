@@ -39,15 +39,15 @@ const RLBOT_SERVER_REPO_NAME: &str = "core";
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Force update the launcher
-    #[arg(long, default_value_t = false)]
+    #[arg(short, long, default_value_t = false)]
     force_update_self: bool,
 
     /// Force update the gui
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short = 'g', long, default_value_t = false)]
     force_update_gui: bool,
 
     /// Force update the server
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short = 's', long, default_value_t = false)]
     force_update_server: bool,
 
     /// Run as if offline
