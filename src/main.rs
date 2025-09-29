@@ -38,11 +38,19 @@ const RLBOT_SERVER_REPO_NAME: &str = "core";
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// Force self-update
-    #[arg(short, long, default_value_t = false)]
-    force_self_update: bool,
+    /// Force update the launcher
+    #[arg(long, default_value_t = false)]
+    force_update_self: bool,
 
-    // Run as if offline
+    /// Force update the gui
+    #[arg(short, long, default_value_t = false)]
+    force_update_gui: bool,
+
+    /// Force update the server
+    #[arg(short, long, default_value_t = false)]
+    force_update_server: bool,
+
+    /// Run as if offline
     #[arg(short, long, default_value_t = false)]
     offline: bool,
 }
@@ -61,7 +69,7 @@ fn realmain() -> anyhow::Result<()> {
     // Check for self update
     if is_online {
         info!("Checking for self-updates...");
-        let self_updated = check_self_update(args.force_self_update).unwrap_or_else(|e| {
+        let self_updated = check_self_update(args.force_update_self).unwrap_or_else(|e| {
             error!("{}", e.to_string());
             warn!("Self-update failed due to previous error. Skipping self-update and running anyway");
             false
@@ -84,10 +92,10 @@ fn realmain() -> anyhow::Result<()> {
 
     if is_online {
         // Update binaries
-        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_GUI_BIN_NAME, RLBOT_GUI_REPO_NAME) {
+        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_GUI_BIN_NAME, RLBOT_GUI_REPO_NAME, args.force_update_gui) {
             error!("{}", e.to_string());
         }
-        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME) {
+        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME, args.force_update_server) {
             error!("{}", e.to_string());
         }
     }
@@ -111,7 +119,7 @@ fn realmain() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str) -> Result<bool, anyhow::Error> {
+fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str, force: bool) -> Result<bool, anyhow::Error> {
     // Get sha of local bin, if any
     let bin_path = rlbot_bin_dir.join(bin_name);
     let local_sha = fs::read(bin_path.clone())
@@ -142,9 +150,11 @@ fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str) -> Res
         .expect("GitHub digest starts with 'sha256:'");
 
     // If sha is the same, we are up to date
-    if let Some(ref sha) = local_sha && asset_sha == *sha {
+    if let Some(ref sha) = local_sha && asset_sha == *sha && !force {
         info!("{} is up to date", bin_name);
         return Ok(false);
+    } else if force {
+        info!("Forcing update of {} ...", bin_name);
     }
 
     // Download and replace bin
