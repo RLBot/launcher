@@ -19,8 +19,9 @@ Make sure you have the [rust toolchain](https://rustup.rs/) and [cargo-xwin](htt
 
 Once the changes have been committed and the version in `Cargo.toml` has been updated, the launcher can be updated by following these steps:
 
-1. Run `cargo build --release` (be careful you don't run it, self it will replace itself with the old version)
-1. Create a new GitHub release. Its name must match the version in `Cargo.toml`.
+1. Bump the version in `Cargo.toml`.
+1. Run `cargo build --release` (be careful you don't run it as it will replace itself with the old version)
+1. Create a new GitHub release and upload the exe. The release name must match the version in `Cargo.toml`.
 
 ## Updating the installer
 

@@ -31,14 +31,14 @@ Section ""
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "DisplayName" "RLBot5"
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "DisplayVersion" "1.0.0.0"
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "Publisher" "RLBot"
-    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "DisplayIcon" "$INSTDIR\logo.ico"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "DisplayIcon" "$INSTDIR\icon.ico"
     WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "NoModify" 1
     WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "NoRepair" 1
     WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RLBot5" "UninstallString" "$INSTDIR\Uninstall.exe"
 
     SetOutPath $INSTDIR
     WriteUninstaller $INSTDIR\Uninstall.exe
-    File "..\assets\logo.ico"
+    File "..\assets\icon.ico"
 
     SetOutPath $INSTDIR\bin
     File "..\target\release\launcher.exe"

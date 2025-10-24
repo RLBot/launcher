@@ -1,10 +1,10 @@
 [package]
 name = "launcher"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2024"
-description = "RLBotGUI Launcher"
+description = "RLBot5 Launcher"
 license-file = "LICENSE"
-repository = "https://github.com/rlbot/gui-launcher"
+repository = "https://github.com/rlbot/launcher"
 publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
