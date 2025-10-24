@@ -26,6 +26,7 @@ Once the changes have been committed and the version in `Cargo.toml` has been up
 ## Updating the installer
 
 1. Install [NSIS](https://nsis.sourceforge.io/Main_Page).
+1. Run `cargo build --release`.
 1. Right-click on `installer.nsi` and select `Compile NSIS Script` or run `makensis installer.nsi`.
 1. Replace the installer file in the [Installer release](https://github.com/RLBot/launcher-v5/releases/tag/installer).
 
