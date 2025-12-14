@@ -2,4 +2,5 @@
 target
 .zed
 
-installer/rlbot5-installer.exe
+installer/*.msi
+installer/*.wix*

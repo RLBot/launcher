@@ -25,10 +25,10 @@ Once the changes have been committed and the version in `Cargo.toml` has been up
 
 ## Updating the installer
 
-1. Install [NSIS](https://nsis.sourceforge.io/Main_Page).
-1. Run `cargo build --release`.
-1. Right-click on `installer.nsi` and select `Compile NSIS Script` or run `makensis installer.nsi`.
-1. Replace the installer file in the [Installer release](https://github.com/RLBot/launcher-v5/releases/tag/installer).
+1. Make sure [docker](https://docs.docker.com/engine/install/) is installed.
+1. Run ./installer/build.sh using `sh ./installer/build.sh` in the "root" directory.
+There is currently only a linux shell script, so on windows, you'll have to run it through wsl.
+1. You should now have a `rlbot-v5-installer.msi` file in the `./installer` directory.
 
 The installer technically only needs to be created once (since the launcher is self-updating),
-but creating an intaller that installs the newest launcher immediately avoids new users having to restart the launcher on first run.
+but creating an installer that installs the newest launcher immediately avoids new users having to restart the launcher on first run.
