@@ -1,16 +1,21 @@
-mod self_update;
 mod github;
+mod self_update;
 
+use crate::github::Release;
 use anyhow::anyhow;
 use clap::Parser;
 use console::Term;
 use directories::BaseDirs;
 use self_update::check_self_update;
-use std::{env, fs, io::{stdout, Read, Write}, net::TcpStream, path::{Path, PathBuf}};
 use std::process::Command;
+use std::{
+    env, fs,
+    io::{Read, Write, stdout},
+    net::TcpStream,
+    path::{Path, PathBuf},
+};
 use tracing::{error, info, warn};
 use yansi::Paint;
-use crate::github::Release;
 
 /*
 File structure of RLBot v5:
@@ -71,7 +76,9 @@ fn realmain() -> anyhow::Result<()> {
         info!("Checking for self-updates...");
         let self_updated = check_self_update(args.force_update_self).unwrap_or_else(|e| {
             error!("{}", e.to_string());
-            warn!("Self-update failed due to previous error. Skipping self-update and running anyway");
+            warn!(
+                "Self-update failed due to previous error. Skipping self-update and running anyway"
+            );
             false
         });
 
@@ -92,24 +99,34 @@ fn realmain() -> anyhow::Result<()> {
 
     if is_online {
         // Update binaries
-        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_GUI_BIN_NAME, RLBOT_GUI_REPO_NAME, args.force_update_gui) {
+        if let Err(e) = update_binary(
+            rlbot_bin_dir.clone(),
+            RLBOT_GUI_BIN_NAME,
+            RLBOT_GUI_REPO_NAME,
+            args.force_update_gui,
+        ) {
             error!("{}", e.to_string());
         }
-        if let Err(e) = update_binary(rlbot_bin_dir.clone(), RLBOT_SERVER_BIN_NAME, RLBOT_SERVER_REPO_NAME, args.force_update_server) {
+        if let Err(e) = update_binary(
+            rlbot_bin_dir.clone(),
+            RLBOT_SERVER_BIN_NAME,
+            RLBOT_SERVER_REPO_NAME,
+            args.force_update_server,
+        ) {
             error!("{}", e.to_string());
         }
     }
 
     // Run RLBot server and gui
     let server_path = rlbot_bin_dir.clone().join(RLBOT_SERVER_BIN_NAME);
-    let mut server_process =Command::new(server_path)
+    let mut server_process = Command::new(server_path)
         .current_dir(env::temp_dir())
         .spawn()?;
 
     let gui_path = rlbot_bin_dir.join(RLBOT_GUI_BIN_NAME);
-    let exit_status =Command::new(gui_path)
+    let exit_status = Command::new(gui_path)
         .current_dir(env::temp_dir())
-        .status()?;  // Blocking
+        .status()?; // Blocking
     if !exit_status.success() {
         Err(anyhow!("Command failed"))?;
     }
@@ -119,7 +136,12 @@ fn realmain() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str, force: bool) -> Result<bool, anyhow::Error> {
+fn update_binary(
+    rlbot_bin_dir: PathBuf,
+    bin_name: &str,
+    repo_name: &str,
+    force: bool,
+) -> Result<bool, anyhow::Error> {
     // Get sha of local bin, if any
     let bin_path = rlbot_bin_dir.join(bin_name);
     let local_sha = fs::read(bin_path.clone())
@@ -127,9 +149,8 @@ fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str, force:
         .ok();
 
     // Get sha from latest GitHub release
-    let latest_release_url = format!(
-        "https://api.github.com/repos/RLBot/{repo_name}/releases/latest"
-    );
+    let latest_release_url =
+        format!("https://api.github.com/repos/RLBot/{repo_name}/releases/latest");
     let req = ureq::get(&latest_release_url)
         .header("User-Agent", "rlbot-gui-launcher")
         .call()
@@ -137,20 +158,35 @@ fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str, force:
 
     let req_text = &req.into_body().read_to_string()?;
 
-    let latest_release = serde_json::from_str::<Release>(req_text)
-        .map_err(|e| anyhow!("Could not parse latest release of RLBot/{}: {}", repo_name, e))?;
+    let latest_release = serde_json::from_str::<Release>(req_text).map_err(|e| {
+        anyhow!(
+            "Could not parse latest release of RLBot/{}: {}",
+            repo_name,
+            e
+        )
+    })?;
 
-    let asset = latest_release.assets.iter()
+    let asset = latest_release
+        .assets
+        .iter()
         .find(|a| a.name == bin_name)
-        .ok_or(anyhow!("Could not find {} asset in latest release", bin_name))?;
+        .ok_or(anyhow!(
+            "Could not find {} asset in latest release",
+            bin_name
+        ))?;
 
-    let asset_sha = asset.digest.split(':')
+    let asset_sha = asset
+        .digest
+        .split(':')
         .skip(1)
         .next()
         .expect("GitHub digest starts with 'sha256:'");
 
     // If sha is the same, we are up to date
-    if let Some(ref sha) = local_sha && asset_sha == *sha && !force {
+    if let Some(ref sha) = local_sha
+        && asset_sha == *sha
+        && !force
+    {
         info!("{} is up to date", bin_name);
         return Ok(false);
     } else if force {
@@ -158,15 +194,15 @@ fn update_binary(rlbot_bin_dir: PathBuf, bin_name: &str, repo_name: &str, force:
     }
 
     // Download and replace bin
-    info!("Downloading latest {} ({})...", bin_name, latest_release.name);
+    info!(
+        "Downloading latest {} ({})...",
+        bin_name, latest_release.name
+    );
     let response = ureq::get(&asset.browser_download_url).call()?;
 
     info!("Applying update to {} ...", bin_name);
     let mut bytes = Vec::new();
-    response
-        .into_body()
-        .into_reader()
-        .read_to_end(&mut bytes)?;
+    response.into_body().into_reader().read_to_end(&mut bytes)?;
 
     fs::write(&bin_path, bytes)?;
 
