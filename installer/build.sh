@@ -3,6 +3,7 @@
 
 echo Running candle
 docker run --rm -v $(pwd):/wix dactiv/wix candle ./installer/installer.wxs \
+    -ext WixUIExtension -ext WixUtilExtension \
     -out ./installer/installer.wixobj -nologo
 
 echo Running light
