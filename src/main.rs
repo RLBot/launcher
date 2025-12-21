@@ -210,7 +210,10 @@ fn update_binary(
 }
 
 fn is_online() -> bool {
-    TcpStream::connect("github.com:80").is_ok()
+    // Used to be github.com:80, but this resulted in some pcs failing to
+    // connect resulting in this returning false. Using 1.1.1.1 should skip
+    // dns (one possible reason) and since its cloudflare, it should be up 🤞
+    TcpStream::connect("1.1.1.1:80").is_ok()
 }
 
 fn pause() {
