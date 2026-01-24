@@ -25,10 +25,17 @@ Once the changes have been committed and the version in `Cargo.toml` has been up
 
 ## Updating the installer
 
-1. Make sure [docker](https://docs.docker.com/engine/install/) is installed.
-1. Run ./installer/build.sh using `sh ./installer/build.sh` in the "root" directory.
-There is currently only a linux shell script, so on windows, you'll have to run it through wsl.
-1. You should now have a `rlbot-v5-installer.msi` file in the `./installer` directory.
-
 The installer technically only needs to be created once (since the launcher is self-updating),
 but creating an installer that installs the newest launcher immediately avoids new users having to restart the launcher on first run.
+
+Linux:
+1. Make sure [docker](https://docs.docker.com/engine/install/) is installed.
+1. Run `./installer/build.sh` using `sh ./installer/build.sh` in the "root" directory.
+1. You should now have a `rlbot-v5-installer.msi` file in the `./installer` directory.
+1. Edit the [Installer release](https://github.com/RLBot/launcher/releases/tag/installer) and replace the msi.
+
+Windows:
+1. Make sure [WiX v3](https://github.com/wixtoolset/wix3/releases/) is installed and added to PATH.
+1. Run `.\\installer\\build.bat` in the "root" directory.
+1. You should now have a `rlbot-v5-installer.msi` file in the `./installer` directory.
+1. Edit the [Installer release](https://github.com/RLBot/launcher/releases/tag/installer) and replace the msi.

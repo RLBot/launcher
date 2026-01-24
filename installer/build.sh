@@ -1,6 +1,3 @@
-# TODO: Make windows build.bat file too.
-#       WiX runs natively on windows so it shouldn't be a problem
-
 echo Running candle
 docker run --rm -v $(pwd):/wix dactiv/wix candle ./installer/installer.wxs \
     -ext WixUIExtension -ext WixUtilExtension \
