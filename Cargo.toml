@@ -1,6 +1,6 @@
 [package]
 name = "launcher"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2024"
 description = "RLBot5 Launcher"
 license-file = "LICENSE"
