@@ -11,8 +11,9 @@ use std::process::Command;
 use std::{
     env, fs,
     io::{Read, Write, stdout},
-    net::TcpStream,
+    net::{SocketAddr, TcpStream},
     path::{Path, PathBuf},
+    time::Duration,
 };
 use tracing::{error, info, warn};
 use yansi::Paint;
@@ -56,8 +57,12 @@ struct Args {
     force_update_server: bool,
 
     /// Run as if offline
-    #[arg(short, long, default_value_t = false)]
+    #[arg(short, long, default_value_t = false, conflicts_with = "online")]
     offline: bool,
+
+    /// Skip the internet connection check and pretend to be online
+    #[arg(long, default_value_t = false, conflicts_with = "offline")]
+    online: bool,
 }
 
 fn realmain() -> anyhow::Result<()> {
@@ -67,7 +72,13 @@ fn realmain() -> anyhow::Result<()> {
 
     info!("Checking for internet connection...");
 
-    let is_online = !args.offline && is_online();
+    let is_online = if args.online {
+        true
+    } else if args.offline {
+        false
+    } else {
+        is_online()
+    };
 
     info!("Is online: {is_online}");
 
@@ -210,10 +221,28 @@ fn update_binary(
 }
 
 fn is_online() -> bool {
-    // Used to be github.com:80, but this resulted in some pcs failing to
-    // connect resulting in this returning false. Using 1.1.1.1 should skip
-    // dns (one possible reason) and since its cloudflare, it should be up 🤞
-    TcpStream::connect("1.1.1.1:80").is_ok()
+    // Fast path: a raw TCP connect to a single IP:port. This is fragile — it
+    // fails on IPv6-only networks, proxy-only egress, and where 1.1.1.1 is
+    // blocked or filtered — so bound it with a timeout and fall back to a real
+    // HTTPS probe of the endpoint we actually depend on.
+    if let Ok(addr) = "1.1.1.1:80".parse::<SocketAddr>()
+        && TcpStream::connect_timeout(&addr, Duration::from_secs(3)).is_ok()
+    {
+        return true;
+    }
+
+    // Backup: verify GitHub API is reachable over HTTPS, like the update
+    // requests do. The timeout makes filtered networks fail fast instead of
+    // hanging for the OS default connect timeout.
+    let agent = ureq::Agent::config_builder()
+        .timeout_global(Some(Duration::from_secs(5)))
+        .build()
+        .new_agent();
+    agent
+        .get("https://api.github.com")
+        .header("User-Agent", "rlbot-launcher-v5")
+        .call()
+        .is_ok()
 }
 
 fn pause() {
