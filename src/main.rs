@@ -72,13 +72,7 @@ fn realmain() -> anyhow::Result<()> {
 
     info!("Checking for internet connection...");
 
-    let is_online = if args.online {
-        true
-    } else if args.offline {
-        false
-    } else {
-        is_online()
-    };
+    let is_online = args.online || (!args.offline && is_online());
 
     info!("Is online: {is_online}");
 
