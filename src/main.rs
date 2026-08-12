@@ -108,8 +108,11 @@ fn realmain() -> anyhow::Result<()> {
         fs::create_dir_all(rlbot_bin_dir.clone())?;
     }
 
-    if is_online {
-        // Update binaries
+    let gui_exists = rlbot_bin_dir.join(RLBOT_GUI_BIN_NAME).exists();
+    let server_exists = rlbot_bin_dir.join(RLBOT_SERVER_BIN_NAME).exists();
+    let should_attempt_updates = is_online || !gui_exists || !server_exists;
+
+    if should_attempt_updates {
         if let Err(e) = update_binary(
             rlbot_bin_dir.clone(),
             RLBOT_GUI_BIN_NAME,
@@ -189,8 +192,7 @@ fn update_binary(
     let asset_sha = asset
         .digest
         .split(':')
-        .skip(1)
-        .next()
+        .nth(1)
         .expect("GitHub digest starts with 'sha256:'");
 
     // If sha is the same, we are up to date
