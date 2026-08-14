@@ -6,5 +6,7 @@ fn main() {
 
         println!("cargo:rerun-if-changed=app-name-manifest.rc");
         embed_resource::compile("gui-launcher-manifest.rc", embed_resource::NONE)
+            .manifest_optional()
+            .unwrap();
     }
 }
