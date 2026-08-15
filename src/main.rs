@@ -78,7 +78,9 @@ fn realmain() -> anyhow::Result<()> {
         false
     } else {
         info!("Checking for internet connection...");
-        is_online()
+        let v = is_online();
+        info!("Is online: {v}");
+        v
     };
 
     // Check for self update

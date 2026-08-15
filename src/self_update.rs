@@ -22,7 +22,7 @@ fn self_update(new_release: &Release) -> anyhow::Result<()> {
     let mut bytes = Vec::new();
     response.into_body().into_reader().read_to_end(&mut bytes)?;
 
-    info!("Updating self... DO NOT CLOSE THIS WINDOW");
+    info!("Updating self...");
     let temp_bin = Path::join(env::temp_dir().as_path(), "TEMPlauncher.exe");
     fs::write(&temp_bin, bytes)?;
     self_replace::self_replace(&temp_bin)?;
