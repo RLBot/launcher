@@ -70,11 +70,16 @@ fn realmain() -> anyhow::Result<()> {
     let rlbot_ascii_art = include_str!("../assets/rlbot-ascii-art.txt");
     println!("{}\n", rlbot_ascii_art.green());
 
-    info!("Checking for internet connection...");
-
-    let is_online = args.online || (!args.offline && is_online());
-
-    info!("Is online: {is_online}");
+    let is_online = if args.online {
+        info!("Is online: true (by --online)");
+        true
+    } else if args.offline {
+        info!("Is online: false (by --offline)");
+        false
+    } else {
+        info!("Checking for internet connection...");
+        is_online()
+    };
 
     // Check for self update
     if is_online {
@@ -105,6 +110,9 @@ fn realmain() -> anyhow::Result<()> {
     let gui_exists = rlbot_bin_dir.join(RLBOT_GUI_BIN_NAME).exists();
     let server_exists = rlbot_bin_dir.join(RLBOT_SERVER_BIN_NAME).exists();
     let should_attempt_updates = is_online || !gui_exists || !server_exists;
+    if !gui_exists || !server_exists {
+        info!("RLBotGUI/RLBotServer binary missing. Fetching...");
+    }
 
     if should_attempt_updates {
         if let Err(e) = update_binary(
